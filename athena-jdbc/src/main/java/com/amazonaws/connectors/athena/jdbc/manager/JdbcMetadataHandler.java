@@ -238,7 +238,15 @@ public abstract class JdbcMetadataHandler
                     schemaBuilder.addField(FieldBuilder.newBuilder(columnName, columnType).build());
                     found = true;
                 }
-                else {
+                else if(!SupportedTypes.isSupported(columnType)){
+                    //FIX ERROR JdbcMetadataHandler:242 - getSchema: Unable to map
+                    ArrowType columnType = JdbcArrowTypeConverter.toArrowType(
+                        java.sql.Types.VARCHAR,
+                        resultSet.getInt("COLUMN_SIZE"),
+                        resultSet.getInt("DECIMAL_DIGITS"));
+                    schemaBuilder.addField(FieldBuilder.newBuilder(columnName, columnType).build());
+                    found = true;
+                }else {
                     LOGGER.error("getSchema: Unable to map type for column[" + columnName + "] to a supported type, attempted " + columnType);
                 }
             }
